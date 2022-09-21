@@ -65,6 +65,34 @@ describe('User Controller', () => {
       expect(sanitizeUser).toHaveBeenCalled();
       expect(created).toHaveBeenCalled();
     });
+
+    test('Create User Successfully with camelCase email', async () => {
+      const camelCaseBody = { ...body, email: 'kAiDoE@CamelCaSE.com' };
+      const create = jest.fn(() => Promise.resolve(camelCaseBody));
+      const exists = jest.fn(() => Promise.resolve(false));
+      const sanitizeUser = jest.fn((user) => Promise.resolve(user));
+      const created = jest.fn();
+      const ctx = createContext({ body: camelCaseBody }, { created });
+
+      global.strapi = {
+        admin: {
+          services: {
+            user: {
+              exists,
+              create,
+              sanitizeUser,
+            },
+          },
+        },
+      };
+
+      await userController.create(ctx);
+
+      expect(exists).toHaveBeenCalledWith({ email: camelCaseBody.email });
+      expect(create).toHaveBeenCalledWith(camelCaseBody);
+      expect(sanitizeUser).toHaveBeenCalled();
+      expect(created).toHaveBeenCalled();
+    });
   });
 
   describe('Find a user by its ID', () => {

@@ -13,6 +13,7 @@ const { getService } = require('../utils');
 module.exports = {
   async create(ctx) {
     const { body } = ctx.request;
+    _.set(body, `email`, _.get(body, `email`, ``).toLowerCase());
 
     await validateUserCreationInput(body);
 
